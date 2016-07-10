@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace Polynomial
+namespace Polynomials
 {
     /// <summary>
     /// Allows to work with polynomials. 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +10,10 @@ namespace Polynomials.Tests
 {
     [TestFixture]
 
+    #region TestData
     public class DataClass
     {
-        public static IEnumerable TestCasesForSolve
+        public static IEnumerable<TestCaseData> TestCasesForSolve
         {
             get
             {
@@ -28,19 +28,64 @@ namespace Polynomials.Tests
             }
         }
 
-        public static IEnumerable TestCases
+        public static IEnumerable<TestCaseData> TestCasesForPlus
         {
             get
             {
-                yield return new TestCaseData(255, 853, 5, 9, 863);
-                yield return new TestCaseData(106, 106, 2, 5, 106);
-                yield return new TestCaseData(0, 7, 2, 2, 4);
-                yield return new TestCaseData(-7, 2, 1, 1, -5);
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 0, 0, 0, 4, 5)).Returns("1X +2(X^2) +3(X^3) +4(X^4) +5(X^5)");
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, -1, -2, -3)).Returns("");
+                yield return new TestCaseData(new Polynomial(0, 0), new Polynomial(0, -1, -2, -3)).Returns("-1X -2(X^2) -3(X^3)");
+                yield return new TestCaseData(new Polynomial(1, 2, 3, 4, 5, 6, 7), new Polynomial(-10, 0, -10, 0, -10)).Returns("-9 +2X -7(X^2) +4(X^3) -5(X^4) +6(X^5) +7(X^6)");
 
             }
         }
-    }
 
+        public static IEnumerable<TestCaseData> TestCasesForMinus
+        {
+            get
+            {
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 0, 0, 0, 4, 5)).Returns("1X +2(X^2) +3(X^3) -4(X^4) -5(X^5)");
+                yield return new TestCaseData(new Polynomial(0.1, 0, 0, 0, 0.04, -0.05), new Polynomial(0.05, 0, 0, 0, 4, 5)).Returns("0,05 -3,96(X^4) -5,05(X^5)");
+                yield return new TestCaseData(new Polynomial(0, 0), new Polynomial(0, 0, 0, 0, 0)).Returns("");
+            }
+        }
+
+        public static IEnumerable<TestCaseData> TestCasesForMultiplication
+        {
+            get
+            {
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 0, 0, 0, 4, 5)).Returns("4(X^5) +13(X^6) +22(X^7) +15(X^8)");
+                yield return new TestCaseData(new Polynomial(1, 1, 0, 2), new Polynomial(1, 1, 3)).Returns("1 +2X +4(X^2) +5(X^3) +2(X^4) +6(X^5)");
+                yield return new TestCaseData(new Polynomial(0, 0), new Polynomial(0, 0, 0, 0, 0)).Returns("");
+            }
+        }
+
+        public static IEnumerable<TestCaseData> TestCasesForEquals
+        {
+            get
+            {
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 0, 0, 0, 4, 5)).Returns("False");
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 1, 2, 3)).Returns("True");
+                yield return new TestCaseData(new Polynomial(0, 0), new Polynomial(0, 0, 0, 0, 0)).Returns("False");
+                yield return new TestCaseData(new Polynomial(0, 0, 0), new Polynomial(0, 0, 0)).Returns("True");
+                yield return new TestCaseData(new Polynomial(1, 2, 3), null).Returns("False");
+            }
+        }
+
+        public static IEnumerable<TestCaseData> TestCasesForGetHashCode
+        {
+            get
+            {
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 0, 0, 0, 4, 5)).Returns("False");
+                yield return new TestCaseData(new Polynomial(0, 1, 2, 3), new Polynomial(0, 1, 2, 3)).Returns("True");
+                yield return new TestCaseData(new Polynomial(0, 0), new Polynomial(0, 0, 0, 0, 0)).Returns("False");
+                yield return new TestCaseData(new Polynomial(0, 0, 0), new Polynomial(0, 0, 0)).Returns("True");
+            }
+        }
+    }
+    #endregion
+
+    #region Tests
     public class PolynomialTest
     {
         [Test, TestCaseSource(typeof(DataClass), "TestCasesForSolve")]
@@ -48,5 +93,36 @@ namespace Polynomials.Tests
         {
             return a.Solve(argument);
         }
-    }
+
+        [Test, TestCaseSource(typeof(DataClass), "TestCasesForPlus")]
+        public string PlusPolynomials_TwoPlynomials_Summ(Polynomial a, Polynomial b)
+        {
+            return (a + b).ToString();
+        }
+
+        [Test, TestCaseSource(typeof(DataClass), "TestCasesForMinus")]
+        public string MinusPolynomials_TwoPlynomials_Result(Polynomial a, Polynomial b)
+        {
+            return (a - b).ToString();
+        }
+
+        [Test, TestCaseSource(typeof(DataClass), "TestCasesForMultiplication")]
+        public string MultiplicatePolynomials_TwoPlynomials_Result(Polynomial a, Polynomial b)
+        {
+            return (a * b).ToString();
+        }
+
+        [Test, TestCaseSource(typeof(DataClass), "TestCasesForEquals")]
+        public string Comparing_TwoPlynomials_ResultToString(Polynomial a, Polynomial b)
+        {
+            return a.Equals(b).ToString();
+        }
+
+        [Test, TestCaseSource(typeof(DataClass), "TestCasesForGetHashCode")]
+        public string Comparing_TwoPlynomialsHashes_ResultToString(Polynomial a, Polynomial b)
+        {
+            return (a.GetHashCode() == b.GetHashCode()).ToString();
+        }
+    } 
+    #endregion
 }
